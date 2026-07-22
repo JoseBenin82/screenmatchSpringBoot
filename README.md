@@ -1,107 +1,143 @@
-
 # ScreenMatch Spring Boot 🎬
 
-![Java](https://img.shields.io/badge/Java-25-%23ED8B00?logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.0-%236DB33F?logo=springboot)
-![Maven](https://img.shields.io/badge/Maven-3.x-%23C71A36?logo=apache-maven)
-![OMDb API](https://img.shields.io/badge/API-OMDb-%23F5C518?logo=imdb)
+![Java](https://img.shields.io/badge/Java-25-%23ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4.1.0-%236DB33F?logo=springboot&logoColor=white)
+![Maven](https://img.shields.io/badge/Maven-3.x-%23C71A36?logo=apache-maven&logoColor=white)
+![Jackson](https://img.shields.io/badge/Jackson-2.22.1-black?logo=json&logoColor=white)
+![OMDb API](https://img.shields.io/badge/API-OMDb-%23F5C518?logo=imdb&logoColor=black)
+[![License: MIT](https://img.shields.io/badge/Licencia-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-ScreenMatch es una aplicación de consola desarrollada con **Spring Boot** que consume la **OMDb API** para consultar información detallada de series de televisión: datos generales, temporadas y episodios. El proyecto fue desarrollado como parte del programa **Alura One - Oracle Next Education**.
+**Aplicación de consola que consume la API REST de OMDb** para obtener información detallada de series de televisión — temporadas, episodios, calificaciones y más — construida con Java moderno y Spring Boot.
+
+> Proyecto desarrollado durante el programa **Alura One — Oracle Next Education**.
 
 ---
 
 ## ✨ Funcionalidades
 
-- **Consumo de API REST** — Integración con OMDb API usando `HttpClient` nativo de Java.
-- **Deserialización JSON** — Mapeo de respuestas a `records` de Java con Jackson y `@JsonAlias`.
-- **Consulta por temporadas** — Itera sobre todas las temporadas de una serie y muestra episodio por episodio.
-- **Arquitectura limpia** — Separación en capas: `model`, `service` y la aplicación principal.
+| Capacidad | Implementación |
+|---|---|
+| **Cliente REST** | `java.net.http.HttpClient` nativo de Java 11+ — sin librerías externas HTTP |
+| **Deserialización JSON** | Jackson `ObjectMapper` con `@JsonAlias` y `@JsonIgnoreProperties` |
+| **DTOs Inmutables** | `record` de Java — concisos, thread-safe, sin boilerplate |
+| **Consulta por Temporadas** | Itera todas las temporadas y muestra cada episodio con título, rating y fecha |
+| **Ciclo de Vida Spring Boot** | `CommandLineRunner` como punto de entrada de la aplicación |
+| **Interfaz Genérica de Conversión** | `IConvierteDatos<T>` — contrato reutilizable para cualquier mapeo JSON → objeto |
 
 ---
 
-## 🧰 Stack Tecnológico
-
-| Tecnología | Versión |
-|-----------|---------|
-| Java | 25 |
-| Spring Boot | 4.1.0 |
-| Maven | 3.x |
-| Jackson Databind | 2.22.1 |
-| OMDb API | v1 |
-
----
-
-## 🗂️ Estructura del Proyecto
+## 🧱 Arquitectura
 
 ```
-screenmatchSpringBoot/
-├── src/main/java/com/aluracursos/screenmatchSpringBoot/
-│   ├── ScreenmatchSpringBootApplication.java   # Entry point & lógica principal
-│   ├── model/
-│   │   ├── DatosSerie.java                     # Record: datos generales de la serie
-│   │   ├── DatosTemporadas.java                # Record: temporada + lista de episodios
-│   │   └── DatosEpisodio.java                  # Record: datos del episodio
-│   └── service/
-│       ├── ConsumoAPI.java                     # Cliente HTTP para llamadas a la API
-│       ├── IConvierteDatos.java                # Interface genérica para conversión JSON
-│       └── ConvierteDatos.java                 # Implementación con Jackson ObjectMapper
-└── pom.xml                                     # Configuración Maven
+┌────────────────────────────────────────────┐
+│  ScreenmatchSpringBootApplication.java     │
+│  @SpringBootApplication + CommandLineRunner │
+└────────────────┬───────────────────────────┘
+                 │  instancia
+                 ▼
+┌────────────────────────────────────────────┐
+│  Principal.java                            │
+│  Orquestación — input de usuario, llamadas │
+│  a la API, renderizado de salida           │
+└────┬─────────────────────┬─────────────────┘
+     │                     │
+     ▼                     ▼
+┌────────────┐    ┌──────────────────┐
+│ ConsumoAPI │    │ ConvierteDatos   │
+│ HttpClient │    │ ObjectMapper     │
+│ (service)  │    │ (service)        │
+└────────────┘    └──────────────────┘
+                        │
+                        ▼
+                 ┌──────────────────┐
+                 │  Model (record)  │
+                 │ DatosSerie       │
+                 │ DatosTemporadas  │
+                 │ DatosEpisodio    │
+                 └──────────────────┘
+```
+
+### 📁 Estructura del Proyecto
+
+```
+src/main/java/com/aluracursos/screenmatchSpringBoot/
+├── ScreenmatchSpringBootApplication.java   # Entry point + CommandLineRunner
+├── principal/
+│   └── Principal.java                      # Orquestación de la lógica de negocio
+├── model/
+│   ├── DatosSerie.java                     # DTO de serie (record)
+│   ├── DatosTemporadas.java                # DTO de temporada (record)
+│   └── DatosEpisodio.java                  # DTO de episodio (record)
+└── service/
+    ├── ConsumoAPI.java                     # Capa cliente HTTP
+    ├── IConvierteDatos.java                # Interfaz genérica convertidor JSON
+    └── ConvierteDatos.java                 # Implementación con Jackson
 ```
 
 ---
 
-## 🚀 Cómo ejecutar
+## 🚀 Cómo Ejecutar
 
 ```bash
-# 1. Clonar el repositorio
+# Clonar el repositorio
 git clone https://github.com/tu-usuario/screenmatchSpringBoot.git
-
-# 2. Entrar al directorio
 cd screenmatchSpringBoot
 
-# 3. Ejecutar con Maven
+# Ejecutar con Maven
 ./mvnw spring-boot:run
 ```
 
-> **Nota:** La aplicación requiere una API key de OMDb. La actual es de prueba — reemplázala en `ScreenmatchSpringBootApplication.java` con tu propia clave en [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx).
+> **⚠️ API Key:** Reemplaza la clave de prueba en `Principal.java` con tu propia clave en [omdbapi.com/apikey.aspx](https://www.omdbapi.com/apikey.aspx).
 
 ---
 
-## 📌 Ejemplo de salida
+## 🖥️ Ejemplo de Salida
 
 ```
-ScreenMatch Spring Boot
-Título: Game of Thrones
-Temporadas: 8
-Evaluación: 9.2
+Por favor escribe la serie que deseas buscar: Game of Thrones
 
-Temporada 1:
-  Episodio 1: "Winter Is Coming" (2011-04-17) ⭐ 8.9
-  Episodio 2: "The Kingsroad" (2011-04-24) ⭐ 8.7
-  ...
+DatosSerie[titulo=Game of Thrones, totalDeTemporadas=8, evaluacion=9.2]
+DatosTemporadas[numero=1, episodios=[DatosEpisodio[titulo=Winter Is Coming, ...]]]
+DatosTemporadas[numero=2, episodios=[DatosEpisodio[titulo=The North Remembers, ...]]]
+...
 ```
 
 ---
 
-## 👨‍💻 Lo que demuestra este proyecto
+## 🛠️ Stack Tecnológico
 
-| Habilidad | Evidencia |
-|-----------|-----------|
-| **Java moderno** | Records, `HttpClient`, lambdas, streams |
-| **Spring Boot** | `@SpringBootApplication`, `CommandLineRunner`, inyección de dependencias |
-| **APIs REST** | Consumo de servicios web con HTTP |
-| **JSON & Serialización** | Jackson `ObjectMapper`, anotaciones `@JsonAlias`, `@JsonIgnoreProperties` |
-| **POO & SOLID** | Interfaces genéricas, separación de responsabilidades |
-| **Maven** | Gestión de dependencias, ciclo de build |
+| Tecnología | Propósito |
+|---|---|
+| **Java 25** | Records, Lambdas, Streams, `HttpClient`, inferencia `var` |
+| **Spring Boot 4.1.0** | Auto-configuración, `CommandLineRunner`, contenedor IoC |
+| **Maven 3.x** | Gestión de dependencias, ciclo de build |
+| **Jackson 2.22.1** | Serialización/deserialización JSON |
+| **OMDb API** | Fuente de datos REST externa |
+| **JUnit 5** | Test de carga de contexto con `@SpringBootTest` |
 
 ---
 
-## 📚 Sobre el programa
+## ✅ Habilidades Demostradas
 
-Proyecto desarrollado durante el **Alura One - Oracle Next Education**, programa de formación en desarrollo backend con Java y Spring.
+| Habilidad | Evidencia en Código |
+|---|---|
+| **Java Moderno (17+)** | `record` como DTOs (sin Lombok, sin POJOs manuales), `HttpClient`, lambdas con `forEach`, inferencia `var` |
+| **Spring Boot** | `@SpringBootApplication`, `CommandLineRunner`, hooks del ciclo de vida Spring |
+| **Consumo de APIs REST** | Peticiones HTTP GET a OMDb, construcción de query params, manejo de respuestas |
+| **Procesamiento JSON** | Jackson `ObjectMapper`, `@JsonAlias` para mapeo de campos, `@JsonIgnoreProperties` |
+| **Diseño Orientado a Objetos** | Diseño basado en interfaces (`IConvierteDatos<T>`), clases con responsabilidad única |
+| **Principios SOLID** | Open/Closed mediante interfaces genéricas, Inversión de Dependencias con abstracciones |
+| **Build con Maven** | Configuración `pom.xml`, gestión de dependencias, Maven Wrapper |
+| **Arquitectura Limpia** | Separación en capas `model`, `service` y orquestación |
+
+---
+
+## 📚 Sobre el Programa
+
+Proyecto desarrollado durante **Alura One — Oracle Next Education**, un programa intensivo de formación en backend enfocado en Java, Spring y prácticas modernas de desarrollo de software.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia MIT.
+Distribuido bajo la licencia MIT. Consulte `LICENSE` para más información.
