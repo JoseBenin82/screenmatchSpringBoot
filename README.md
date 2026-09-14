@@ -21,8 +21,10 @@
 | **Deserialización JSON** | Jackson `ObjectMapper` con `@JsonAlias` y `@JsonIgnoreProperties` |
 | **DTOs Inmutables** | `record` de Java — concisos, thread-safe, sin boilerplate |
 | **Consulta por Temporadas** | Itera todas las temporadas y muestra cada episodio con título, rating y fecha |
+| **Procesamiento con Streams** | `Stream API` para filtrar, ordenar, mapear y recolectar datos (Top 5 episodios, conversión a modelo) |
 | **Ciclo de Vida Spring Boot** | `CommandLineRunner` como punto de entrada de la aplicación |
 | **Interfaz Genérica de Conversión** | `IConvierteDatos<T>` — contrato reutilizable para cualquier mapeo JSON → objeto |
+| **Modelo de Dominio Enriquecido** | Clase `Episodio` con getters/setters, `LocalDate` para fechas, conversión desde DTO |
 
 ---
 
@@ -49,12 +51,21 @@
 └────────────┘    └──────────────────┘
                         │
                         ▼
-                 ┌──────────────────┐
-                 │  Model (record)  │
-                 │ DatosSerie       │
-                 │ DatosTemporadas  │
-                 │ DatosEpisodio    │
-                 └──────────────────┘
+┌──────────────────┐
+                  │  Model (record)  │
+                  │ DatosSerie       │
+                  │ DatosTemporadas  │
+                  │ DatosEpisodio    │
+                  └────────┬─────────┘
+                           │ map/flatMap
+                           ▼
+                  ┌──────────────────┐
+                  │  Model (class)   │
+                  │    Episodio      │
+                  │ temporada,       │
+                  │ titulo, rating,  │
+                  │ fechaLanzamiento │
+                  └──────────────────┘
 ```
 
 ### 📁 Estructura del Proyecto
@@ -63,11 +74,13 @@
 src/main/java/com/aluracursos/screenmatchSpringBoot/
 ├── ScreenmatchSpringBootApplication.java   # Entry point + CommandLineRunner
 ├── principal/
-│   └── Principal.java                      # Orquestación de la lógica de negocio
+│   ├── Principal.java                      # Orquestación de la lógica de negocio
+│   └── EjemploStreams.java                 # Ejemplos educativos de Stream API
 ├── model/
 │   ├── DatosSerie.java                     # DTO de serie (record)
 │   ├── DatosTemporadas.java                # DTO de temporada (record)
-│   └── DatosEpisodio.java                  # DTO de episodio (record)
+│   ├── DatosEpisodio.java                  # DTO de episodio (record)
+│   └── Episodio.java                       # Modelo de dominio enriquecido (class)
 └── service/
     ├── ConsumoAPI.java                     # Capa cliente HTTP
     ├── IConvierteDatos.java                # Interfaz genérica convertidor JSON
@@ -100,6 +113,12 @@ DatosSerie[titulo=Game of Thrones, totalDeTemporadas=8, evaluacion=9.2]
 DatosTemporadas[numero=1, episodios=[DatosEpisodio[titulo=Winter Is Coming, ...]]]
 DatosTemporadas[numero=2, episodios=[DatosEpisodio[titulo=The North Remembers, ...]]]
 ...
+
+Top 5 episodios
+DatosEpisodio[titulo=The Rains of Castamere, evaluacion=9.9, ...]
+DatosEpisodio[titulo=Battle of the Bastards, evaluacion=9.9, ...]
+DatosEpisodio[titulo=The Winds of Winter, evaluacion=9.8, ...]
+...
 ```
 
 ---
@@ -122,6 +141,7 @@ DatosTemporadas[numero=2, episodios=[DatosEpisodio[titulo=The North Remembers, .
 | Habilidad | Evidencia en Código |
 |---|---|
 | **Java Moderno (17+)** | `record` como DTOs (sin Lombok, sin POJOs manuales), `HttpClient`, lambdas con `forEach`, inferencia `var` |
+| **Stream API** | `stream()`, `flatMap()`, `filter()`, `sorted()`, `limit()`, `collect()`, `map()`, comparadores personalizados |
 | **Spring Boot** | `@SpringBootApplication`, `CommandLineRunner`, hooks del ciclo de vida Spring |
 | **Consumo de APIs REST** | Peticiones HTTP GET a OMDb, construcción de query params, manejo de respuestas |
 | **Procesamiento JSON** | Jackson `ObjectMapper`, `@JsonAlias` para mapeo de campos, `@JsonIgnoreProperties` |
@@ -129,6 +149,7 @@ DatosTemporadas[numero=2, episodios=[DatosEpisodio[titulo=The North Remembers, .
 | **Principios SOLID** | Open/Closed mediante interfaces genéricas, Inversión de Dependencias con abstracciones |
 | **Build con Maven** | Configuración `pom.xml`, gestión de dependencias, Maven Wrapper |
 | **Arquitectura Limpia** | Separación en capas `model`, `service` y orquestación |
+| **Modelado de Dominio** | Clase `Episodio` con encapsulamiento, `LocalDate`, conversión desde DTO inmutable |
 
 ---
 
