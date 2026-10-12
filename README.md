@@ -22,6 +22,8 @@
 | **DTOs Inmutables** | `record` de Java — concisos, thread-safe, sin boilerplate |
 | **Consulta por Temporadas** | Itera todas las temporadas y muestra cada episodio con título, rating y fecha |
 | **Procesamiento con Streams** | `Stream API` para filtrar, ordenar, mapear y recolectar datos (Top 5 episodios, conversión a modelo) |
+| **Búsqueda de Episodios** | Por fragmento de título (case-insensitive) con `Optional` + `findFirst`, y por año con `LocalDate` + `DateTimeFormatter` |
+| **Estadísticas por Temporada** | Evaluación promedio por temporada con `groupingBy` + `averagingDouble`, y resumen global (count, sum, min, average, max) con `summarizingDouble` / `DoubleSummaryStatistics` |
 | **Ciclo de Vida Spring Boot** | `CommandLineRunner` como punto de entrada de la aplicación |
 | **Interfaz Genérica de Conversión** | `IConvierteDatos<T>` — contrato reutilizable para cualquier mapeo JSON → objeto |
 | **Modelo de Dominio Enriquecido** | Clase `Episodio` con getters/setters, `LocalDate` para fechas, conversión desde DTO |
@@ -119,6 +121,12 @@ DatosEpisodio[titulo=The Rains of Castamere, evaluacion=9.9, ...]
 DatosEpisodio[titulo=Battle of the Bastards, evaluacion=9.9, ...]
 DatosEpisodio[titulo=The Winds of Winter, evaluacion=9.8, ...]
 ...
+
+Episodio encontrado
+Los datos son: temporada=3, titulo='The Rains of Castamere', numeroEpisodio=9, evaluacion=9.9, fechaDeLanzamiento=2013-06-02
+
+{1=8.45, 2=8.71, 3=8.95, ...}
+DoubleSummaryStatistics{count=62, sum=543.200000, min=7.200000, average=8.761290, max=9.900000}
 ```
 
 ---
@@ -140,8 +148,8 @@ DatosEpisodio[titulo=The Winds of Winter, evaluacion=9.8, ...]
 
 | Habilidad | Evidencia en Código |
 |---|---|
-| **Java Moderno (17+)** | `record` como DTOs (sin Lombok, sin POJOs manuales), `HttpClient`, lambdas con `forEach`, inferencia `var` |
-| **Stream API** | `stream()`, `flatMap()`, `filter()`, `sorted()`, `limit()`, `collect()`, `map()`, comparadores personalizados |
+| **Java Moderno (17+)** | `record` como DTOs (sin Lombok, sin POJOs manuales), `HttpClient`, lambdas con `forEach`, inferencia `var`, `Optional` para búsquedas |
+| **Stream API** | `stream()`, `flatMap()`, `filter()`, `sorted()`, `limit()`, `collect()`, `map()`, comparadores personalizados, `groupingBy` + `averagingDouble`, `summarizingDouble` (`DoubleSummaryStatistics`), `peek()` para depuración |
 | **Spring Boot** | `@SpringBootApplication`, `CommandLineRunner`, hooks del ciclo de vida Spring |
 | **Consumo de APIs REST** | Peticiones HTTP GET a OMDb, construcción de query params, manejo de respuestas |
 | **Procesamiento JSON** | Jackson `ObjectMapper`, `@JsonAlias` para mapeo de campos, `@JsonIgnoreProperties` |
@@ -149,7 +157,7 @@ DatosEpisodio[titulo=The Winds of Winter, evaluacion=9.8, ...]
 | **Principios SOLID** | Open/Closed mediante interfaces genéricas, Inversión de Dependencias con abstracciones |
 | **Build con Maven** | Configuración `pom.xml`, gestión de dependencias, Maven Wrapper |
 | **Arquitectura Limpia** | Separación en capas `model`, `service` y orquestación |
-| **Modelado de Dominio** | Clase `Episodio` con encapsulamiento, `LocalDate`, conversión desde DTO inmutable |
+| **Modelado de Dominio** | Clase `Episodio` con encapsulamiento, `LocalDate`, conversión desde DTO inmutable, manejo de `N/A` → `0.0` y fechas inválidas → `null` |
 
 ---
 
