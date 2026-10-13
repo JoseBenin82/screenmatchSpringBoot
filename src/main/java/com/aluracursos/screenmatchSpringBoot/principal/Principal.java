@@ -114,7 +114,10 @@ public class Principal {
         DoubleSummaryStatistics est= episodios.stream()
                 .filter(e->e.getEvaluacion()>0.0)
                 .collect(Collectors.summarizingDouble(Episodio::getEvaluacion));
-        System.out.println(est);
+        System.out.println("MEdia de las Evaluaciones:"+est);
+        System.out.println("Episodio Mejor Evaluado:"+est);
+        System.out.println("Episodio Peor Evaluado:"+est);
+
 
     }
 
